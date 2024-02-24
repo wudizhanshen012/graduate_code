@@ -20,7 +20,7 @@ from sklearn import preprocessing
 import datetime
 
 # %%
-data = pd.read_csv("/20230328代码与数据/美国市场数据/final_data——1965-2020.csv", encoding='utf-8')
+data = pd.read_csv("/share/home/qshz79/share/home/qshz79/graduate_code/graduate_code/us_code/data/origin_data/final_data——1965-2020.csv", encoding='utf-8')
 data['ym'] = data['DATE'].astype(str).apply(lambda x: x[0:4] + '-' + x[4:6])
 data = data.set_index(data['ym'])
 data.index = pd.to_datetime(data.index)
@@ -59,7 +59,7 @@ y = data.loc[:, y_col]
 x.index, y.index = pd.to_datetime(x.index), pd.to_datetime(y.index)
 x, y
 # %%
-df = pd.read_csv("/20230328代码与数据/美国市场数据/PredictorData2021.xlsx - Monthly.csv")
+df = pd.read_csv("/share/home/qshz79/share/home/qshz79/graduate_code/graduate_code/us_code/data/origin_data/PredictorData2021.xlsx-Monthly.csv")
 df['dp'] = np.log(df['D12'] / df['Index'])  # d/p
 df['ep'] = np.log(df['E12'] / df['Index'])  # e/p
 df['bm'] = df['b/m']  # B/M

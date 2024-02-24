@@ -7,9 +7,9 @@ n_job = min(60, os.cpu_count() - 1)  # 多线程的最大数量，未修改的jo
 data_path = root_path + '/us_code/data/'
 
 # ===需要修改的参数
-how_to_feature_extraction = 'pca'   # 可以选择origin(不处理)/pca/pls/ae   只在2_train_model.py中使用
-train_model_list = ['OLS', 'LASSO', 'RIDGE', 'ENET', 'RF', 'NN3']  #
-start_year = 2001
+how_to_feature_extraction = 'pls'   # 可以选择origin(不处理)/pca/pls/ae   只在2_train_model.py中使用
+train_model_list = ['RF']  # 'OLS', 'RIDGE', 'ENET', 'RF', 'NN3',
+start_year = 2018
 end_year = 2019
 
 base_col = ['permno', 'ym', 'sic2']
@@ -24,6 +24,7 @@ x_col = ['mvel1', 'beta', 'betasq', 'chmom', 'dolvol', 'idiovol', 'indmom', 'mom
          'maxret', 'retvol', 'std_dolvol', 'std_turn', 'zerotrade', 'bm', 'bm_ia']
 
 macro_col = ['Dp', 'Ep', 'Bm', 'Ntis', 'Tbl', 'Tms', 'Dfy', 'Svar']
+
 category_factor_dict = {
     'size': ['mvel1', 'mve_ia', 'herf', 'chinv', 'chcsho', 'age'],
     'beta': ['beta', 'betasq'],

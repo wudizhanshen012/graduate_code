@@ -20,7 +20,7 @@ from sklearn import preprocessing
 import datetime
 
 # %%
-data = pd.read_csv("/20230328代码与数据/美国市场数据/final_data——1965-2020.csv", encoding='utf-8')
+data = pd.read_csv("/share/home/qshz79/share/home/qshz79/graduate_code/graduate_code/us_code/data/origin_data/final_data——1965-2020.csv", encoding='utf-8')
 data['ym'] = data['DATE'].astype(str).apply(lambda x: x[0:4] + '-' + x[4:6])
 data = data.set_index(data['ym'])
 data.index = pd.to_datetime(data.index)
@@ -59,7 +59,7 @@ y = data.loc[:, y_col]
 x.index, y.index = pd.to_datetime(x.index), pd.to_datetime(y.index)
 x, y
 # %%
-df = pd.read_csv("/20230328代码与数据/美国市场数据/PredictorData2021.xlsx - Monthly.csv")
+df = pd.read_csv("/share/home/qshz79/share/home/qshz79/graduate_code/graduate_code/us_code/data/origin_data/PredictorData2021.xlsx-Monthly.csv")
 df['dp'] = np.log(df['D12'] / df['Index'])  # d/p
 df['ep'] = np.log(df['E12'] / df['Index'])  # e/p
 df['bm'] = df['b/m']  # B/M
@@ -155,108 +155,110 @@ lever = ['securedind', 'secured', 'lev', 'pchquick', 'pchcapx_ia', 'lgr', 'quick
 # %%
 # 交乘
 
-macro_data = x[['DP', 'EP', 'BM', 'NTIS', 'TBL', 'TMS', 'DFY', 'SVAR']]
-ym = x.index
-x = x.iloc[:, :-8]
-x_array = [x]
-for i in range(8):
-    x_array.append(x * np.array(macro_data.iloc[:, i]).reshape(-1, 1))
-
-x = pd.DataFrame(np.hstack(x_array))
-x.index = ym
-x
+# macro_data = x[['DP', 'EP', 'BM', 'NTIS', 'TBL', 'TMS', 'DFY', 'SVAR']]
+# ym = x.index
+# x = x.iloc[:, :-8]
+# x_array = [x]
+# for i in range(8):
+#     x_array.append(x * np.array(macro_data.iloc[:, i]).reshape(-1, 1))
+#
+# x = pd.DataFrame(np.hstack(x_array))
+# x.index = ym
+# x
 
 # 'sin','baspread',
 # %%
-# 修改
-x = pd.concat([x, pd.DataFrame(ind_x, index=x.index)], axis=1)
-x
+# 行业虚拟变量
+# x = pd.concat([x, pd.DataFrame(ind_x, index=x.index)], axis=1)
+# x
 
 # 原始
 
 # %%
 # OLS
 
-# from sklearn.linear_model import LinearRegression, HuberRegressor
-# from sklearn.model_selection import PredefinedSplit
-# from sklearn.model_selection import GridSearchCV
-#
-# loss, Y_test, Y_pre = [], [], []
-# # for i in range(16):
-# #     a = pd.read_csv(f'F:/xiu预测结果/原始202304/OLS-{i + 1}.csv')
-# #     Y_pre.append(a)
-# weights = []
-# for year in range(19):
-#     x_train = x['1965':'{}'.format(1988 + year)]
-#     y_train = y['1965':'{}'.format(1988 + year)]
-#
-#     x_val = x['{}'.format(1989 + year):'{}'.format(2000 + year)]
-#     y_val = y['{}'.format(1989 + year):'{}'.format(2000 + year)]
-#
-#     x_test = x['{}'.format(2001 + year)]
-#     y_test = y['{}'.format(2001 + year)]
-#
-#     x_train_val = x['1965':'{}'.format(2000 + year)]
-#     y_train_val = y['1965':'{}'.format(2000 + year)]
-#
-#     test_fold = np.zeros(x_train_val.shape[0])  # 将所有index初始化为0,0表示第一轮的验证集
-#     test_fold[:x_train.shape[0]] = -1  # 将训练集对应的index设为-1，表示永远不划分到验证集中
-#     ps = PredefinedSplit(test_fold=test_fold)
-#     param_grid = {'l1': [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001],
-#                   }
-#     model = HuberRegressor(epsilon=1.0)
-#     history = model.fit(x_train_val, y_train_val,
-#                         )
-#
-#     pred_y3 = model.predict(x_test).reshape(len(y_test), 1)
-#     print('预测值为:', pred_y3)
-#
-#     R方_RF = 1 - (sum((np.array(y_test).reshape(len(y_test), 1) - pred_y3) ** 2)) / (
-#         sum((np.array(y_test).reshape(len(y_test), 1) ** 2)))
-#     print('OLS的R方：', R方_RF)
-#
-#     # pd.DataFrame(pred_y3).to_csv('/20230328代码与数据/美国市场预测结果/原始/OLS-{}.csv'.format(year + 1), index=False)
-#
-#     loss.append(history)
-#     Y_test.append(y_test)
-#     Y_pre.append(pred_y3)
-#     weights.append(list(model.coef_))
-#     print('第{}年完成'.format(year + 1))
-#
-# data = pd.DataFrame()
-# pre = np.array(Y_pre[0]).reshape(len(Y_pre[0]), 1)
-# for i in range(1, 19):
-#     pre = np.vstack([pre, np.array(Y_pre[i]).reshape(len(Y_pre[i]), 1)])
-#
-# data['pred'] = pre.reshape(len(pre), )
-# data['y_true'] = np.array(y['2001':'2019'])
-# data.index = y['2001':'2019'].index
-#
-# y_test = np.array(data['y_true']).reshape(len(data['y_true']), 1)
-# R方_RF = 1 - (sum((np.array(y_test).reshape(len(y_test), 1) - pre) ** 2)) / (
-#     sum((np.array(y_test).reshape(len(y_test), 1) ** 2)))
-# print('最终OLS的R方：', R方_RF)
-#
-# print(data)
-#
-# ret_long = []
-# ret_short = []
-# for year in range(19):
-#     for month in range(12):
-#         if year == 19 and month == 11:
-#             pass
-#         else:
-#             df = data['{}-{}'.format(2001 + year, 1 + month)]
-#             df = df.sort_values('pred', ascending=False)
-#             ret_long.append(np.mean(df.iloc[0:int(len(df) / 10), 1]))
-#             ret_short.append(np.mean(df.iloc[int(len(df) / 10 * 9):, 1]))
-#             # print('第{}年:'.format(year + 1))
-#             # print('多:', ret_long[year * 12 + month], '空:', ret_short[year * 12 + month], '多空：',
-#             #       ret_long[year * 12 + month] - ret_short[year * 12 + month], '累计收益:', sum(ret_long) - sum(ret_short))
-#             # print('累计多:', sum(ret_long), '累计空:', sum(ret_short))
-# print('多空平均超额月收益率：', np.mean(np.array(ret_long) - np.array(ret_short)))
-# print('夏普比率:', np.mean(np.array(ret_long) - np.array(ret_short)) * 12 / (
-#         np.std(np.array(ret_long) - np.array(ret_short)) * np.power(12, 0.5)))
+from sklearn.linear_model import LinearRegression, HuberRegressor
+from sklearn.model_selection import PredefinedSplit
+from sklearn.model_selection import GridSearchCV
+
+loss, Y_test, Y_pre = [], [], []
+# for i in range(16):
+#     a = pd.read_csv(f'F:/xiu预测结果/原始202304/OLS-{i + 1}.csv')
+#     Y_pre.append(a)
+weights = []
+for year in range(19):
+    x_train = x['1965':'{}'.format(1988 + year)]
+    y_train = y['1965':'{}'.format(1988 + year)]
+
+    x_val = x['{}'.format(1989 + year):'{}'.format(2000 + year)]
+    y_val = y['{}'.format(1989 + year):'{}'.format(2000 + year)]
+
+    x_test = x['{}'.format(2001 + year)]
+    y_test = y['{}'.format(2001 + year)]
+
+    x_train_val = x['1965':'{}'.format(2000 + year)]
+    y_train_val = y['1965':'{}'.format(2000 + year)]
+
+    test_fold = np.zeros(x_train_val.shape[0])  # 将所有index初始化为0,0表示第一轮的验证集
+    test_fold[:x_train.shape[0]] = -1  # 将训练集对应的index设为-1，表示永远不划分到验证集中
+    ps = PredefinedSplit(test_fold=test_fold)
+    param_grid = {'l1': [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001],
+                  }
+    model = LinearRegression()
+    history = model.fit(x_train_val, y_train_val,
+                        )
+
+    pred_y3 = model.predict(x_test).reshape(len(y_test), 1)
+    print('预测值为:', pred_y3)
+
+    R方_RF = 1 - (sum((np.array(y_test).reshape(len(y_test), 1) - pred_y3) ** 2)) / (
+        sum((np.array(y_test).reshape(len(y_test), 1) ** 2)))
+    print('OLS的R方：', R方_RF)
+
+    # pd.DataFrame(pred_y3).to_csv('/20230328代码与数据/美国市场预测结果/原始/OLS-{}.csv'.format(year + 1), index=False)
+
+    loss.append(history)
+    Y_test.append(y_test)
+    Y_pre.append(pred_y3)
+    weights.append(list(model.coef_))
+    print('第{}年完成'.format(year + 1))
+
+data = pd.DataFrame()
+pre = np.array(Y_pre[0]).reshape(len(Y_pre[0]), 1)
+for i in range(1, 19):
+    pre = np.vstack([pre, np.array(Y_pre[i]).reshape(len(Y_pre[i]), 1)])
+
+data['pred'] = pre.reshape(len(pre), )
+data['y_true'] = np.array(y['2001':'2019'])
+data.index = y['2001':'2019'].index
+
+y_test = np.array(data['y_true']).reshape(len(data['y_true']), 1)
+R方_RF = 1 - (sum((np.array(y_test).reshape(len(y_test), 1) - pre) ** 2)) / (
+    sum((np.array(y_test).reshape(len(y_test), 1) ** 2)))
+print('最终OLS的R方：', R方_RF)
+
+print(data)
+
+ret_long = []
+ret_short = []
+for year in range(19):
+    for month in range(12):
+        if year == 19 and month == 11:
+            pass
+        else:
+            df = data['{}-{}'.format(2001 + year, 1 + month)]
+            df = df.sort_values('pred', ascending=False)
+            ret_long.append(np.mean(df.iloc[0:int(len(df) / 10), 1]))
+            ret_short.append(np.mean(df.iloc[int(len(df) / 10 * 9):, 1]))
+            # print('第{}年:'.format(year + 1))
+            # print('多:', ret_long[year * 12 + month], '空:', ret_short[year * 12 + month], '多空：',
+            #       ret_long[year * 12 + month] - ret_short[year * 12 + month], '累计收益:', sum(ret_long) - sum(ret_short))
+            # print('累计多:', sum(ret_long), '累计空:', sum(ret_short))
+print('多空平均超额月收益率：', np.mean(np.array(ret_long) - np.array(ret_short)))
+print('夏普比率:', np.mean(np.array(ret_long) - np.array(ret_short)) * 12 / (
+        np.std(np.array(ret_long) - np.array(ret_short)) * np.power(12, 0.5)))
+
+exit()
 
 # %%
 from sklearn.linear_model import RidgeCV, SGDRegressor

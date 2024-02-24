@@ -20,18 +20,18 @@ if 'OLS' in train_model_list:
     loss, Y_test, Y_pre = [], [], []
     weights = []
     for year in range(start_year, end_year + 1):
-        x_train = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 13}-12-31')].loc[:, x_col + macro_col]
+        x_train = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 13}-12-31')].loc[:, x_col]
         y_train = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 13}-12-31')].loc[:, y_col[0]]
 
         x_val = data[(data['ym'] >= f'{year - 12}-01-01') & (data['ym'] <= f'{year - 1}-12-31')].loc[:,
-                x_col + macro_col]
+                x_col]
         y_val = data[(data['ym'] >= f'{year - 12}-01-01') & (data['ym'] <= f'{year - 1}-12-31')].loc[:, y_col[0]]
 
         x_test = data[(data['ym'] >= f'{year}-01-01') & (data['ym'] <= f'{year}-12-31')].loc[:,
-                 x_col + macro_col]
+                 x_col]
         y_test = data[(data['ym'] >= f'{year}-01-01') & (data['ym'] <= f'{year}-12-31')].loc[:, y_col[0]]
 
-        x_train_val = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 1}-12-31')].loc[:, x_col + macro_col]
+        x_train_val = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 1}-12-31')].loc[:, x_col]
         y_train_val = data[(data['ym'] >= '1965-01-01') & (data['ym'] <= f'{year - 1}-12-31')].loc[:, y_col[0]]
 
         model = linear_regression()
@@ -118,6 +118,7 @@ if 'LASSO' in train_model_list:
         ps = PredefinedSplit(test_fold=test_fold)
 
         model = lasso(ps=ps)
+
         history = model.fit(x_train_val, y_train_val)
 
         pred_y = model.predict(x_test).reshape(len(y_test), 1)
@@ -150,7 +151,7 @@ if 'LASSO' in train_model_list:
         loss.append(history)
         Y_test.append(y_test)
         Y_pre.append(pred_y)
-        weights.append(list(model.coef_))
+        # weights.append(list(model.coef_))
         print('第{}年完成'.format(year))
 
     analysis_data = data[(data['ym'] >= f'{start_year}-01-01') & (data['ym'] <= f'{end_year}-12-31')].loc[:,
